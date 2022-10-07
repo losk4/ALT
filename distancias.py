@@ -11,7 +11,7 @@ from re import S
 import numpy as np
 
 # [ALEXEY]
-# Debajo utilizo esta misma versión que nos dan pero adaptada a mi gusto (porque soy tonto y me lío con la matriz).
+# Debajo utilizo esta misma versión que nos dan pero adaptada a mi gusto con el recorrido.
 # He hecho que cuadre con el grafo de las transparencias (o eso creo), intercambiando ejes.
 # Elegid solo UNA versión para realizar los demás algoritmos y me lo comentáis para que cambie la edición más adelante.
 
@@ -94,7 +94,8 @@ def levenshtein_edicion(x, y, threshold=None):
             i = i - 1
 
         # Elegimos la operación de edicion óptima. Si hay mas de una, la que sea.
-        # En este caso, se prioriza SUB (tiene que ir primero) > BOR > INS en caso de empate.
+        # En este caso, se prioriza SUB > BOR > INS en caso de empate.
+        # Si quereis cambiar el orden, tendriais que checkear los SUBs de coste 0 antes de esto.
         else:
             op = [D[i - 1][j - 1], D[i][j - 1], D[i - 1][j]]
             
@@ -116,8 +117,12 @@ def levenshtein_edicion(x, y, threshold=None):
     B.reverse()
     return D[lenY, lenX], B
 
+# [ALEXEY]
+# A partir de aquí, Jose y yo tenemos las versiones REDUCIDAS (con threshold) de los algoritmos. Cualquier duda avisad.
+# Las de matriz + edición no nos las pedían el año pasado.
 def levenshtein_reduccion(x, y, threshold=None):
-    # completar versión con reducción coste espacial
+    # completar versión con reducción coste espacial\
+    
     return 0 # COMPLETAR Y REEMPLAZAR ESTA PARTE
 
 def levenshtein(x, y, threshold):
