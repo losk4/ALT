@@ -11,7 +11,7 @@ from re import S
 import numpy as np
 
 # [ALEXEY]
-# Debajo utilizo esta misma versión que nos dan pero adaptada a mi gusto (porque soy tonto y me lío con la matriz).
+# Debajo utilizo esta misma versión que nos dan pero adaptada a mi gusto con el recorrido.
 # He hecho que cuadre con el grafo de las transparencias (o eso creo), intercambiando ejes.
 # Elegid solo UNA versión para realizar los demás algoritmos y me lo comentáis para que cambie la edición más adelante.
 
@@ -52,7 +52,7 @@ def levenshtein_edicion(x, y, threshold=None):
             )
 
     # Diapo. 25: ... Importante: tras finalizar el cálculo de la distancia.
-    # Esto significa que hay que reconstruir, no acumular. Que pereza.
+    # Esto significa que hay que reconstruir.
 
     # Lista de tuplas de edición.
     B = []
@@ -94,7 +94,8 @@ def levenshtein_edicion(x, y, threshold=None):
             i = i - 1
 
         # Elegimos la operación de edicion óptima. Si hay mas de una, la que sea.
-        # En este caso, se prioriza SUB (tiene que ir primero) > BOR > INS en caso de empate.
+        # En este caso, se prioriza SUB > BOR > INS en caso de empate.
+        # Si quereis cambiar el orden, tendriais que checkear los SUBs de coste 0 antes de esto.
         else:
             op = [D[i - 1][j - 1], D[i][j - 1], D[i - 1][j]]
             
@@ -116,13 +117,45 @@ def levenshtein_edicion(x, y, threshold=None):
     B.reverse()
     return D[lenY, lenX], B
 
+# [ALEXEY]
 def levenshtein_reduccion(x, y, threshold=None):
-    # completar versión con reducción coste espacial
-    return 0 # COMPLETAR Y REEMPLAZAR ESTA PARTE
+    # Nos basta con utilizar dos vectores en vez de toda la matriz.
+    lenX, lenY = len(x) + 1, len(y) + 1
+    row1 = list(range(lenX))
+    row2 = [None] * lenX
 
+    for i in range(1, lenY):
+        row1, row2 = row2, row1
+        row1[0] = i
+        for j in range(1, lenX):
+            row1[j] = min(
+                row1[j - 1] + 1,
+                row2[j] + 1,
+                row2[j - 1] + (x[j - 1] != y[i - 1])
+            )
+    
+    return row1[-1]
+
+# [ALEXEY]
 def levenshtein(x, y, threshold):
-    # completar versión reducción coste espacial y parada por threshold
-    return min(0,threshold+1) # COMPLETAR Y REEMPLAZAR ESTA PARTE
+    lenX, lenY = len(x) + 1, len(y) + 1
+    row1 = list(range(lenX))
+    row2 = [None] * lenX
+
+    for i in range(1, lenY):
+        row1, row2 = row2, row1
+        row1[0] = i
+        for j in range(1, lenX):
+            row1[j] = min(
+                row1[j - 1] + 1,
+                row2[j] + 1,
+                row2[j - 1] + (x[j - 1] != y[i - 1])
+            )
+        # Os hago la version pocha de parada por threshold, que tengo prisa. Usad esto si no teneis nada mejor.
+        if all(d > threshold for d in row1):
+            return threshold + 1
+    
+    return min(row1[-1], threshold + 1)
 
 def levenshtein_cota_optimista(x, y, threshold):
     return 0 # COMPLETAR Y REEMPLAZAR ESTA PARTE
@@ -176,6 +209,8 @@ opcionesEdicionBase = {
 # Para no pillar TODOS los tests de momento, id modificando esto mejor.
 opcionesSpell = {
     'levenshtein_m': levenshtein_matriz,
+    'levenshtein_r': levenshtein_reduccion,
+    'levenshtein':   levenshtein,
 }
 
 opcionesEdicion = {
