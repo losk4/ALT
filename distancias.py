@@ -152,6 +152,7 @@ def levenshtein(x, y, threshold):
                 row2[j - 1] + (x[j - 1] != y[i - 1])
             )
         # Os hago la version pocha de parada por threshold, que tengo prisa. Usad esto si no teneis nada mejor.
+        #if min>threshold
         if all(d > threshold for d in row1):
             return threshold + 1
 
@@ -161,7 +162,7 @@ def levenshtein_cota_optimista(x, y, threshold):
     return 0 # COMPLETAR Y REEMPLAZAR ESTA PARTE
 
 def damerau_restricted_matriz(x, y, threshold=None):
-    # completar versión Damerau-Levenstein restringida con matriz
+    # Versión Damerau-Levenstein restringida con matriz
     lenX, lenY = len(x), len(y)
     D = np.zeros((lenX + 1, lenY + 1), dtype=np.int)
     for i in range(1, lenX + 1):
@@ -169,14 +170,17 @@ def damerau_restricted_matriz(x, y, threshold=None):
     for j in range(1, lenY + 1):
         D[0][j] = D[0][j - 1] + 1
         for i in range(1, lenX + 1):
-            D[i][j] = min(
+            op1 = min(
                 D[i - 1][j] + 1,
                 D[i][j - 1] + 1,
                 D[i - 1][j - 1] + (x[i - 1] != y[j - 1]),
-                if i > 1:
-                    D[i - 2][j - 2] + (x[i - 2] == y[j - 1] and x[i - 1] == y[j - 2]),
             )
+            if i > 1 and j > 1 and ((x[i - 2] == y[j - 1]) and (x[i - 1] == y[j - 2])):
+                op1 = min(op1, D[i - 2][j - 2] + 1)
+            D[i][j] = op1
+
     return D[lenX, lenY]
+
 
 def damerau_restricted_edicion(x, y, threshold=None):
     lenX, lenY = len(x), len(y)
@@ -186,13 +190,14 @@ def damerau_restricted_edicion(x, y, threshold=None):
     for j in range(1, lenY + 1):
         D[0][j] = D[0][j - 1] + 1
         for i in range(1, lenX + 1):
-            D[i][j] = min(
+            op1 = min(
                 D[i - 1][j] + 1,
                 D[i][j - 1] + 1,
                 D[i - 1][j - 1] + (x[i - 1] != y[j - 1]),
-                if i > 1:
-                    D[i - 2][j - 2] + (x[i - 2] == y[j - 1] and x[i - 1] == y[j - 2]),
             )
+            if i > 1 and j > 1 and ((x[i - 2] == y[j - 1]) and (x[i - 1] == y[j - 2])):
+                op1 = min(op1, D[i - 2][j - 2] + 1)
+            D[i][j] = op1
 
     # Lista de tuplas de edición.
     B = []
@@ -238,25 +243,12 @@ def damerau_restricted_edicion(x, y, threshold=None):
     B.reverse()
     return D[lenY, lenX], B
 
+"""
 def damerau_restricted(x, y, threshold=None):
     #NO COMPLETO
-    lenX, lenY = len(x) + 1, len(y) + 1
-    row1 = list(range(lenX))
-    row2 = [None] * lenX
 
-    for i in range(1, lenY):
-        row1, row2 = row2, row1
-        row1[0] = i
-        for j in range(1, lenX):
-            row1[j] = min(
-                row1[j - 1] + 1,
-                row2[j] + 1,
-                row2[j - 1] + (x[j - 1] != y[i - 1])
-                if j > 1:
 
-            )
-
-    return row1[-1]
+    return 0
 
 def damerau_intermediate_matriz(x, y, threshold=None):
     #NO COMPLETO
@@ -267,13 +259,15 @@ def damerau_intermediate_matriz(x, y, threshold=None):
     for j in range(1, lenY + 1):
         D[0][j] = D[0][j - 1] + 1
         for i in range(1, lenX + 1):
-            D[i][j] = min(
+            op1 = min(
                 D[i - 1][j] + 1,
                 D[i][j - 1] + 1,
                 D[i - 1][j - 1] + (x[i - 1] != y[j - 1]),
-                if i > 1:
-                    D[i - 2][j - 2] + (x[i - 2] == y[j - 1] and x[i - 1] == y[j - 2]),
             )
+            if i > 1 and j > 1 and ((x[i - 2] == y[j - 1]) and (x[i - 1] == y[j - 2])):
+                op1 = min(op1, D[i - 2][j - 2] + 1)
+            D[i][j] = op1
+
     return D[lenX, lenY]
 
 
@@ -286,7 +280,8 @@ def damerau_intermediate_edicion(x, y, threshold=None):
 def damerau_intermediate(x, y, threshold=None):
     # versión con reducción coste espacial y parada por threshold
     return min(0,threshold+1) # COMPLETAR Y REEMPLAZAR ESTA PARTE
-
+"""
+"""
 opcionesSpellBase = {
     'levenshtein_m': levenshtein_matriz,
     'levenshtein_r': levenshtein_reduccion,
@@ -303,15 +298,18 @@ opcionesEdicionBase = {
     'damerau_r':   damerau_restricted_edicion,
     'damerau_i':   damerau_intermediate_edicion
 }
-
+"""
 # Para no pillar TODOS los tests de momento, id modificando esto mejor.
 opcionesSpell = {
     'levenshtein_m': levenshtein_matriz,
     'levenshtein_r': levenshtein_reduccion,
     'levenshtein':   levenshtein,
+    'damerau_rm':    damerau_restricted_matriz
+
 }
 
 opcionesEdicion = {
-    'levenshtein': levenshtein_edicion
+    'levenshtein': levenshtein_edicion,
+    'damerau_r':   damerau_restricted_edicion
 }
 #
