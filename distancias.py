@@ -183,6 +183,7 @@ def damerau_restricted_matriz(x, y, threshold=None):
 
 
 def damerau_restricted_edicion(x, y, threshold=None):
+    # REVISAR
     lenX, lenY = len(x), len(y)
     D = np.zeros((lenX + 1, lenY + 1), dtype=np.int)
     for i in range(1, lenX + 1):
@@ -243,15 +244,16 @@ def damerau_restricted_edicion(x, y, threshold=None):
     B.reverse()
     return D[lenY, lenX], B
 
-"""
 def damerau_restricted(x, y, threshold=None):
     #NO COMPLETO
 
 
     return 0
 
+
 def damerau_intermediate_matriz(x, y, threshold=None):
-    #NO COMPLETO
+    # Versión Damerau-Levenstein intermedia con matriz
+    # REVISAR - NO FUNCIONA CORRECTAMENTE
     lenX, lenY = len(x), len(y)
     D = np.zeros((lenX + 1, lenY + 1), dtype=np.int)
     for i in range(1, lenX + 1):
@@ -266,22 +268,44 @@ def damerau_intermediate_matriz(x, y, threshold=None):
             )
             if i > 1 and j > 1 and ((x[i - 2] == y[j - 1]) and (x[i - 1] == y[j - 2])):
                 op1 = min(op1, D[i - 2][j - 2] + 1)
+            if i > 2 and j > 1 and (x[i - 3] == y[j - 1]):
+                op1 = min(op1, D[i - 3, j - 3] + 1)
+            if i > 1 and j > 2 and (x[i - 1] == y[j - 3]):
+                op1 = min(op1, D[i - 3, j - 3] + 1)
+
+            D[i][j] = op1
+
+    return D[lenX, lenY]
+
+"""
+def damerau_intermediate_edicion(x, y, threshold=None):
+    # partiendo de matrix_intermediate_damerau añadir recuperar
+    lenX, lenY = len(x), len(y)
+    D = np.zeros((lenX + 1, lenY + 1), dtype=np.int)
+    for i in range(1, lenX + 1):
+        D[i][0] = D[i - 1][0] + 1
+    for j in range(1, lenY + 1):
+        D[0][j] = D[0][j - 1] + 1
+        for i in range(1, lenX + 1):
+            op1 = min(
+                D[i - 1][j] + 1,
+                D[i][j - 1] + 1,
+                D[i - 1][j - 1] + (x[i - 1] != y[j - 1]),
+            )
+            if i > 1 and j > 1 and ((x[i - 2] == y[j - 1]) and (x[i - 1] == y[j - 2])):
+                op1 = min(op1, D[i - 2][j - 2] + 1)
+            if i > 2 and j > 1 and ((x[i - 3] == y[j - 1])):
+                op1 = min(op1, D[i - 3, j - 3])
             D[i][j] = op1
 
     return D[lenX, lenY]
 
 
-def damerau_intermediate_edicion(x, y, threshold=None):
-    # partiendo de matrix_intermediate_damerau añadir recuperar
-    # secuencia de operaciones de edición
-    # completar versión Damerau-Levenstein intermedia con matriz
-    return 0,[] # COMPLETAR Y REEMPLAZAR ESTA PARTE
-
 def damerau_intermediate(x, y, threshold=None):
     # versión con reducción coste espacial y parada por threshold
     return min(0,threshold+1) # COMPLETAR Y REEMPLAZAR ESTA PARTE
-"""
-"""
+
+
 opcionesSpellBase = {
     'levenshtein_m': levenshtein_matriz,
     'levenshtein_r': levenshtein_reduccion,
@@ -304,7 +328,8 @@ opcionesSpell = {
     'levenshtein_m': levenshtein_matriz,
     'levenshtein_r': levenshtein_reduccion,
     'levenshtein':   levenshtein,
-    'damerau_rm':    damerau_restricted_matriz
+    'damerau_rm':    damerau_restricted_matriz,
+    'damerau_im':    damerau_intermediate_matriz
 
 }
 
