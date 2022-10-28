@@ -175,6 +175,7 @@ def damerau_restricted_matriz(x, y, threshold=None):
                 D[i][j - 1] + 1,
                 D[i - 1][j - 1] + (x[i - 1] != y[j - 1]),
             )
+            #Regla para intercambio ab -> ba
             if i > 1 and j > 1 and ((x[i - 2] == y[j - 1]) and (x[i - 1] == y[j - 2])):
                 op1 = min(op1, D[i - 2][j - 2] + 1)
             D[i][j] = op1
@@ -183,20 +184,21 @@ def damerau_restricted_matriz(x, y, threshold=None):
 
 
 def damerau_restricted_edicion(x, y, threshold=None):
-    # REVISAR
+    # REVISAR - Como introducir dos letras en el append ( la comprobacion del damerau está pero no se como ponerlo en python)
     lenX, lenY = len(x), len(y)
-    D = np.zeros((lenX + 1, lenY + 1), dtype=np.int)
-    for i in range(1, lenX + 1):
+    D = np.zeros((lenY + 1, lenX + 1), dtype=np.int)
+
+    for i in range(1, lenY + 1):
         D[i][0] = D[i - 1][0] + 1
-    for j in range(1, lenY + 1):
+    for j in range(1, lenX + 1):
         D[0][j] = D[0][j - 1] + 1
-        for i in range(1, lenX + 1):
+        for i in range(1, lenY + 1):
             op1 = min(
                 D[i - 1][j] + 1,
                 D[i][j - 1] + 1,
-                D[i - 1][j - 1] + (x[i - 1] != y[j - 1]),
+                D[i - 1][j - 1] + (x[j - 1] != y[i - 1]),
             )
-            if i > 1 and j > 1 and ((x[i - 2] == y[j - 1]) and (x[i - 1] == y[j - 2])):
+            if i > 1 and j > 1 and ((x[j - 2] == y[i - 1]) and (x[j - 1] == y[i - 2])):
                 op1 = min(op1, D[i - 2][j - 2] + 1)
             D[i][j] = op1
 
@@ -207,53 +209,54 @@ def damerau_restricted_edicion(x, y, threshold=None):
     i = lenY
     j = lenX
 
-    while True:
-        # Final del camino, estamos en la "esquina" inferior izquierda.
-        if i == 0 and j == 0:
-            break
-        # Estamos en la "pared" inferior, hay que eliminar.
-        elif i == 0:
+    while i>0 and j>0:
+        if D[i-1][j] + 1 == D[i][j]:
             B.append((x[j - 1], ''))
             j = j - 1
-        # Estamos en la "pared" izquierda, hay que insertar.
-        elif j == 0:
+        elif D[i][j-1] + 1 == D[i][j]:
             B.append(('', y[i - 1]))
             i = i - 1
-
-        # Elegimos la operación de edicion óptima. Si hay mas de una, la que sea.
-        # En este caso, se prioriza SUB > BOR > INS en caso de empate.
-        # Si quereis cambiar el orden, tendriais que checkear los SUBs de coste 0 antes de esto.
+        #si está en la diagonal, es ese numero mas uno y las letras están intercambiadas
+        elif (D[i-1][j-1] + 1 == D[i][j]) and (x[j] == y[i - 1]) and (x[j - 1] == y[i]):
+            #cogería las dos letras
+            B.append((x[j], x[j-1], y[i], y[i-1]))
+            i = i - 1
+            j = j - 1
         else:
-            op = [D[i - 1][j - 1], D[i][j - 1], D[i - 1][j]]
-
-            minval = min(op)
-            minindex = op.index(minval)
-
-            if minindex == 0:
-                B.append((x[j - 1], y[i - 1]))
-                i = i - 1
-                j = j - 1
-            elif minindex == 1:
-                B.append((x[j - 1], ''))
-                j = j - 1
-            else:
-                B.append(('', y[i - 1]))
-                i = i - 1
+            B.append((x[j - 1], y[i - 1]))
+            i = i - 1
+            j = j - 1
 
     # Revertimos la secuencia y retornamos la tupla (distancia, secuencia)
     B.reverse()
     return D[lenY, lenX], B
 
+
 def damerau_restricted(x, y, threshold=None):
-    #NO COMPLETO
+    #SIN COMPLETAR
+    lenX, lenY = len(x) + 1, len(y) + 1
+    row1 = list(range(lenX))
+    row2 = [None] * lenX
+
+    for i in range(1, lenY):
+        row1, row2 = row2, row1
+        row1[0] = i
+        for j in range(1, lenX):
+            row1[j] = min(
+                row1[j - 1] + 1,
+                row2[j] + 1,
+                row2[j - 1] + (x[j - 1] != y[i - 1])
+            )
+            if i > 1 and j > 1 and (x[j - 1] == y[i - 2]) and (x[j - 2] == y[i - 1]):
+                row2[j - 2] + 1
 
 
-    return 0
+    return row1[-1]
+
 
 
 def damerau_intermediate_matriz(x, y, threshold=None):
     # Versión Damerau-Levenstein intermedia con matriz
-    # REVISAR - NO FUNCIONA CORRECTAMENTE
     lenX, lenY = len(x), len(y)
     D = np.zeros((lenX + 1, lenY + 1), dtype=np.int)
     for i in range(1, lenX + 1):
@@ -269,9 +272,9 @@ def damerau_intermediate_matriz(x, y, threshold=None):
             if i > 1 and j > 1 and ((x[i - 2] == y[j - 1]) and (x[i - 1] == y[j - 2])):
                 op1 = min(op1, D[i - 2][j - 2] + 1)
             if i > 2 and j > 1 and (x[i - 3] == y[j - 1]):
-                op1 = min(op1, D[i - 3, j - 3] + 1)
+                op1 = min(op1, D[i - 2, j - 2] + 1)
             if i > 1 and j > 2 and (x[i - 1] == y[j - 3]):
-                op1 = min(op1, D[i - 3, j - 3] + 1)
+                op1 = min(op1, D[i - 2, j - 2] + 1)
 
             D[i][j] = op1
 
@@ -328,6 +331,7 @@ opcionesSpell = {
     'levenshtein_m': levenshtein_matriz,
     'levenshtein_r': levenshtein_reduccion,
     'levenshtein':   levenshtein,
+    'damerau_r':     damerau_restricted,
     'damerau_rm':    damerau_restricted_matriz,
     'damerau_im':    damerau_intermediate_matriz
 
