@@ -241,9 +241,12 @@ def damerau_restricted(x, y, threshold=None):
     lenX, lenY = len(x) + 1, len(y) + 1
     row1 = list(range(lenX))
     row2 = [None] * lenX
+    row3 = [None] * lenX
 
     for i in range(1, lenY):
         row1, row2 = row2, row1
+        #row3, row1 = row1, row3
+
         row1[0] = i
         for j in range(1, lenX):
             row1[j] = min(
@@ -254,7 +257,7 @@ def damerau_restricted(x, y, threshold=None):
             if (x[j - 1] == y[i - 2]) and (x[j - 2] == y[i - 1]):
                 row1[j] = min(
                     row1[j],
-                    row2[j - 2] + 1
+                    row3[j - 2] + 1
                 )
             #print(row1)
 
