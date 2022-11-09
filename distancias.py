@@ -212,16 +212,18 @@ def damerau_restricted_edicion(x, y, threshold=None):
     while i>0 and j>0:
         if D[i-1][j] + 1 == D[i][j]:
             B.append((x[j - 1], ''))
-            j = j - 1
+            i = i - 1
+            
         elif D[i][j-1] + 1 == D[i][j]:
             B.append(('', y[i - 1]))
-            i = i - 1
-        #si está en la diagonal, es ese numero mas uno y las letras están intercambiadas
-        elif (D[i-1][j-1] + 1 == D[i][j]) and (x[j] == y[i - 1]) and (x[j - 1] == y[i]):
-            #cogería las dos letras
-            B.append((x[j], x[j-1], y[i], y[i-1]))
-            i = i - 1
             j = j - 1
+        #si está en la diagonal, es ese numero mas uno y las letras están intercambiadas
+        elif (D[i-1][j-1] + 1 == D[i][j]) and (x[j-1] == y[i - 2]) and (x[j - 2] == y[i-1]):
+            #cogería las dos letras
+            B.append((x[j-1] + x[j-2], y[i-1] + y[i-2]))
+            i = i - 2
+            j = j - 2
+
         else:
             B.append((x[j - 1], y[i - 1]))
             i = i - 1
@@ -230,6 +232,8 @@ def damerau_restricted_edicion(x, y, threshold=None):
     # Revertimos la secuencia y retornamos la tupla (distancia, secuencia)
     B.reverse()
     return D[lenY, lenX], B
+
+
 
 
 def damerau_restricted(x, y, threshold=None):
@@ -330,10 +334,15 @@ opcionesEdicionBase = {
 opcionesSpell = {
     'levenshtein_m': levenshtein_matriz,
     'levenshtein_r': levenshtein_reduccion,
-    'levenshtein':   levenshtein
+    'levenshtein':   levenshtein,
+    'damerau_r':     damerau_restricted,
+    'damerau_rm':    damerau_restricted_matriz,
+    'damerau_im':    damerau_intermediate_matriz
+
 }
 
 opcionesEdicion = {
-    'levenshtein': levenshtein_edicion
+    'levenshtein': levenshtein_edicion,
+    'damerau_r':   damerau_restricted_edicion
 }
 #
