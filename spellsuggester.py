@@ -62,6 +62,7 @@ class SpellSuggester:
         else:
             raise Exception("SpellSuggester incorrect vocabulary value")
 
+
     def suggest(self, term, distance=None, threshold=None, flatten=True):
         """
 
@@ -80,57 +81,57 @@ class SpellSuggester:
         if distance == None:
             distance = self.default_distance
         
-        resul = {}
-        antes = time.time_ns()
-        if distance == "levenshtein_m":
-            for x in self.vocabulary:
-                if abs(len(x)-len(term)) > threshold:
-                        d = threshold + 1
-                else:
-                    d = distancias.levenshtein_matriz(x, term, threshold)
-                if d <= threshold:
-                    resul[x] = d
-        if distance == "levenshtein_r":
-            for x in self.vocabulary:
-                if abs(len(x)-len(term)) > threshold:
-                        d = threshold + 1
-                else:
-                    d = distancias.levenshtein_reduccion(x, term, threshold)
-                if d <= threshold:
-                    resul[x] = d
-        if distance == "levenshtein":
-            for x in self.vocabulary:
-                if abs(len(x)-len(term)) > threshold:
-                        d = threshold + 1
-                else:
-                    d = distancias.levenshtein(x, term, threshold)
-                if d <= threshold:
-                    resul[x] = d
-        if distance == "damerau_r":
-            for x in self.vocabulary:
-                if abs(len(x)-len(term)) > threshold:
-                        d = threshold + 1
-                else:
-                    d = distancias.damerau_restricted(x, term, threshold)
-                if d <= threshold:
-                    resul[x] = d
-        if distance == "damerau_rm":
-            for x in self.vocabulary:
-                if abs(len(x)-len(term)) > threshold:
-                        d = threshold + 1
-                else:
-                    d = distancias.damerau_restricted_matriz(x, term, threshold)
-                if d <= threshold:
-                    resul[x] = d
-        if distance == "damerau_im":
-            for x in self.vocabulary:
-                if abs(len(x)-len(term)) > threshold:
-                        d = threshold + 1
-                else:
-                    d = distancias.damerau_intermediate_matriz(x, term, threshold)
-                if d <= threshold:
-                    resul[x] = d
-        print(time.time_ns()-antes)
+        resul = [[] for _ in range(threshold+1)]
+        for i in range(threshold+1):
+            if distance == "levenshtein_m":
+                for x in self.vocabulary:
+                    if abs(len(x)-len(term)) > i:
+                            d = i + 1
+                    else:
+                        d = distancias.levenshtein_matriz(x, term, i)
+                    if d == i:
+                        resul[i].append(d)
+            if distance == "levenshtein_r":
+                for x in self.vocabulary:
+                    if abs(len(x)-len(term)) > i:
+                            d = i + 1
+                    else:
+                        d = distancias.levenshtein_reduccion(x, term, i)
+                    if d == i:
+                        resul[i].append(d)
+            if distance == "levenshtein":
+                for x in self.vocabulary:
+                    if abs(len(x)-len(term)) > i:
+                            d = i + 1
+                    else:
+                        d = distancias.levenshtein(x, term, i)
+                    if d == i:
+                        resul[i].append(d)
+            if distance == "damerau_r":
+                for x in self.vocabulary:
+                    if abs(len(x)-len(term)) > i:
+                            d = i + 1
+                    else:
+                        d = distancias.damerau_restricted(x, term, i)
+                    if d == i:
+                        resul[i].append(d)
+            if distance == "damerau_rm":
+                for x in self.vocabulary:
+                    if abs(len(x)-len(term)) > i:
+                            d = i + 1
+                    else:
+                        d = distancias.damerau_restricted_matriz(x, term, i)
+                    if d == i:
+                        resul[i].append(d)
+            if distance == "damerau_im":
+                for x in self.vocabulary:
+                    if abs(len(x)-len(term)) > i:
+                            d = i + 1
+                    else:
+                        d = distancias.damerau_intermediate_matriz(x, term, i)
+                    if d == i:
+                        resul[i].append(d)
+
         if flatten:
             resul = [word for wlist in resul for word in wlist]
             
