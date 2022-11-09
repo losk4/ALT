@@ -330,15 +330,10 @@ opcionesEdicionBase = {
 opcionesSpell = {
     'levenshtein_m': levenshtein_matriz,
     'levenshtein_r': levenshtein_reduccion,
-    'levenshtein':   levenshtein,
-    'damerau_r':     damerau_restricted,
-    'damerau_rm':    damerau_restricted_matriz,
-    'damerau_im':    damerau_intermediate_matriz
-
+    'levenshtein':   levenshtein
 }
 
 opcionesEdicion = {
-    'levenshtein': levenshtein_edicion,
-    'damerau_r':   damerau_restricted_edicion
+    'levenshtein': levenshtein_edicion
 }
 #
