@@ -211,23 +211,32 @@ def damerau_restricted_edicion(x, y, threshold=None):
 
     while i>0 and j>0:
         if D[i-1][j] + 1 == D[i][j]:
-            B.append((x[j - 1], ''))
+            B.append(('', y[i - 1]))
             i = i - 1
 
         elif D[i][j-1] + 1 == D[i][j]:
-            B.append(('', y[i - 1]))
+            B.append((x[j - 1], ''))
             j = j - 1
         #si está en la diagonal, es ese numero mas uno y las letras están intercambiadas
-        elif (D[i-1][j-1] + 1 == D[i][j]) and (x[j-1] == y[i - 2]) and (x[j - 2] == y[i-1]):
-            #cogería las dos letras
-            B.append((x[j-1] + x[j-2], y[i-1] + y[i-2]))
-            i = i - 2
-            j = j - 2
-
-        else:
+        elif (D[i-1][j-1] + (x[j - 1] != y[i - 1]) == D[i][j]):
             B.append((x[j - 1], y[i - 1]))
             i = i - 1
             j = j - 1
+
+        #and (x[j-1] == y[i - 2]) and (x[j - 2] == y[i-1]):
+        else:
+            #cogería las dos letras
+            B.append((x[j-2] + x[j-1], y[i-2] + y[i-1]))
+            i = i - 2
+            j = j - 2
+
+    while j>0:
+        B.append((x[j - 1], ''))
+        j = j - 1
+
+    while i>0:
+        B.append(('', y[i - 1]))
+        i = i - 1
 
     # Revertimos la secuencia y retornamos la tupla (distancia, secuencia)
     B.reverse()
@@ -237,16 +246,15 @@ def damerau_restricted_edicion(x, y, threshold=None):
 
 
 def damerau_restricted(x, y, threshold=None):
-    #SIN COMPLETAR
+    #Versión del damerau-restricted con vectores en vez de la matriz
+    #Ahorro coste espacial
     lenX, lenY = len(x) + 1, len(y) + 1
     row1 = list(range(lenX))
     row2 = [None] * lenX
     row3 = [None] * lenX
 
     for i in range(1, lenY):
-        row1, row2 = row2, row1
-        #row3, row1 = row1, row3
-
+        row1,row2,row3=row3,row1,row2
         row1[0] = i
         for j in range(1, lenX):
             row1[j] = min(
@@ -254,14 +262,19 @@ def damerau_restricted(x, y, threshold=None):
                 row2[j] + 1,
                 row2[j - 1] + (x[j - 1] != y[i - 1])
             )
-            if (x[j - 1] == y[i - 2]) and (x[j - 2] == y[i - 1]):
+            if i>1 and j>1 and (x[j - 1] == y[i - 2]) and (x[j - 2] == y[i - 1]):
                 row1[j] = min(
                     row1[j],
                     row3[j - 2] + 1
                 )
-            #print(row1)
 
-    return row1[-1]
+        # Parada por threshold
+        if all(d > threshold for d in row1):
+            return threshold + 1
+
+    return min(row1[-1], threshold + 1)
+
+    #return row1[-1]
 
 
 
@@ -290,7 +303,7 @@ def damerau_intermediate_matriz(x, y, threshold=None):
 
     return D[lenX, lenY]
 
-"""
+
 def damerau_intermediate_edicion(x, y, threshold=None):
     # partiendo de matrix_intermediate_damerau añadir recuperar
     lenX, lenY = len(x), len(y)
@@ -307,18 +320,123 @@ def damerau_intermediate_edicion(x, y, threshold=None):
             )
             if i > 1 and j > 1 and ((x[i - 2] == y[j - 1]) and (x[i - 1] == y[j - 2])):
                 op1 = min(op1, D[i - 2][j - 2] + 1)
-            if i > 2 and j > 1 and ((x[i - 3] == y[j - 1])):
-                op1 = min(op1, D[i - 3, j - 3])
+            if i > 2 and j > 1 and (x[i - 3] == y[j - 1]):
+                op1 = min(op1, D[i - 2, j - 2] + 1)
+            if i > 1 and j > 2 and (x[i - 1] == y[j - 3]):
+                op1 = min(op1, D[i - 2, j - 2] + 1)
+
             D[i][j] = op1
+
+    # Lista de tuplas de edición.
+    B = []
+
+    # Empezamos desde la "esquina" superior derecha de la matriz de Levenshtein.
+    i = lenY
+    j = lenX
+
+    while i>0 and j>0:
+        if D[i-1][j] + 1 == D[i][j]:
+            B.append(('', y[i - 1]))
+            i = i - 1
+
+        elif D[i][j-1] + 1 == D[i][j]:
+            B.append((x[j - 1], ''))
+            j = j - 1
+        #si está en la diagonal, es ese numero mas uno y las letras están intercambiadas
+        elif (D[i-1][j-1] + (x[j - 1] != y[i - 1]) == D[i][j]):
+            B.append((x[j - 1], y[i - 1]))
+            i = i - 1
+            j = j - 1
+
+
+
+        #and (x[j-1] == y[i - 2]) and (x[j - 2] == y[i-1]):
+        else:
+            #cogería las dos letras
+            B.append((x[j-2] + x[j-1], y[i-2] + y[i-1]))
+            i = i - 2
+            j = j - 2
+
+
+        """
+        elif
+            B.append(x[j-2] + x[j-1], y[i-3] + y[i-2] + y[i-1])
+            j-=3
+            i-=2
+        elif
+            B.append(x[j-3] + x[j-2] + x[j-1], y[i-2] + y[i-1])
+            j-=2
+            i-=3
+        """
+
+
+
+
+
+
+
+
+
+    while j>0:
+        B.append((x[j - 1], ''))
+        j = j - 1
+
+    while i>0:
+        B.append(('', y[i - 1]))
+        i = i - 1
+
+    # Revertimos la secuencia y retornamos la tupla (distancia, secuencia)
+    B.reverse()
+    return D[lenY, lenX], B
+
+
+
+
 
     return D[lenX, lenY]
 
 
 def damerau_intermediate(x, y, threshold=None):
-    # versión con reducción coste espacial y parada por threshold
-    return min(0,threshold+1) # COMPLETAR Y REEMPLAZAR ESTA PARTE
+    #Versión damerau intermedia con vectores
+    lenX, lenY = len(x) + 1, len(y) + 1
+    row1 = list(range(lenX))
+    row2 = [None] * lenX
+    row3 = [None] * lenX
+    row4 = [None] * lenX
+
+    for i in range(1, lenY):
+        row1,row2,row3,row4=row4,row1,row2,row3
+        row1[0] = i
+        for j in range(1, lenX):
+            row1[j] = min(
+                row1[j - 1] + 1,
+                row2[j] + 1,
+                row2[j - 1] + (x[j - 1] != y[i - 1])
+            )
+            if i>1 and j>1 and (x[j - 1] == y[i - 2]) and (x[j - 2] == y[i - 1]):
+                row1[j] = min(
+                    row1[j],
+                    row3[j - 2] + 1
+                )
+            if i > 1 and j > 2 and (x[j - 3] == y[i - 1]):
+                row1[j]= min(
+                    row1[j],
+                    row3[j-2]+1
+                )
+            if i > 2 and j > 1 and (x[j - 1] == y[i - 3]):
+                row1[j]= min(
+                    row1[j],
+                    row3[j-2]+1
+                )
+
+        # Parada por threshold
+        if all(d > threshold for d in row1):
+            return threshold + 1
+
+    return min(row1[-1], threshold + 1)
 
 
+""""
 opcionesSpellBase = {
     'levenshtein_m': levenshtein_matriz,
     'levenshtein_r': levenshtein_reduccion,
@@ -336,6 +454,7 @@ opcionesEdicionBase = {
     'damerau_i':   damerau_intermediate_edicion
 }
 """
+
 # Para no pillar TODOS los tests de momento, id modificando esto mejor.
 opcionesSpell = {
     'levenshtein_m': levenshtein_matriz,
@@ -343,12 +462,14 @@ opcionesSpell = {
     'levenshtein':   levenshtein,
     'damerau_r':     damerau_restricted,
     'damerau_rm':    damerau_restricted_matriz,
-    'damerau_im':    damerau_intermediate_matriz
-
+    'damerau_im':    damerau_intermediate_matriz,
+    'damerau_i':     damerau_intermediate
 }
 
 opcionesEdicion = {
     'levenshtein': levenshtein_edicion,
-    'damerau_r':   damerau_restricted_edicion
+    'damerau_r':   damerau_restricted_edicion,
+    'damerau_i':   damerau_intermediate_edicion
+
 }
 #
