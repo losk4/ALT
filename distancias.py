@@ -294,10 +294,10 @@ def damerau_intermediate_matriz(x, y, threshold=None):
             )
             if i > 1 and j > 1 and ((x[i - 2] == y[j - 1]) and (x[i - 1] == y[j - 2])):
                 op1 = min(op1, D[i - 2][j - 2] + 1)
-            if i > 2 and j > 1 and (x[i - 3] == y[j - 1]):
-                op1 = min(op1, D[i - 2, j - 2] + 1)
-            if i > 1 and j > 2 and (x[i - 1] == y[j - 3]):
-                op1 = min(op1, D[i - 2, j - 2] + 1)
+            if i > 2 and j > 1 and (x[i - 3] == y[j - 1]) and  x[i - 1] == y[j - 2]:
+                op1 = min(op1, D[i - 3][j - 2] + 2)
+            if i > 1 and j > 2 and (x[i - 1] == y[j - 3]) and x[i - 2] == y[j - 1]:
+                op1 = min(op1, D[i - 2][j - 3] + 2)
 
             D[i][j] = op1
 
@@ -320,10 +320,10 @@ def damerau_intermediate_edicion(x, y, threshold=None):
             )
             if i > 1 and j > 1 and ((x[i - 2] == y[j - 1]) and (x[i - 1] == y[j - 2])):
                 op1 = min(op1, D[i - 2][j - 2] + 1)
-            if i > 2 and j > 1 and (x[i - 3] == y[j - 1]):
-                op1 = min(op1, D[i - 2, j - 2] + 1)
-            if i > 1 and j > 2 and (x[i - 1] == y[j - 3]):
-                op1 = min(op1, D[i - 2, j - 2] + 1)
+            if i > 2 and j > 1 and (x[i - 3] == y[j - 1]) and  x[i - 1] == y[j - 2]:
+                op1 = min(op1, D[i - 3][j - 2] + 2)
+            if i > 1 and j > 2 and (x[i - 1] == y[j - 3]) and x[i - 2] == y[j - 1]:
+                op1 = min(op1, D[i - 2][j - 3] + 2)
 
             D[i][j] = op1
 
@@ -392,10 +392,6 @@ def damerau_intermediate_edicion(x, y, threshold=None):
 
 
 
-
-    return D[lenX, lenY]
-
-
 def damerau_intermediate(x, y, threshold=None):
     #Versión damerau intermedia con vectores
     lenX, lenY = len(x) + 1, len(y) + 1
@@ -413,20 +409,20 @@ def damerau_intermediate(x, y, threshold=None):
                 row2[j] + 1,
                 row2[j - 1] + (x[j - 1] != y[i - 1])
             )
-            if i>1 and j>1 and (x[j - 1] == y[i - 2]) and (x[j - 2] == y[i - 1]):
+            if i > 1 and j > 1 and (x[j - 1] == y[i - 2]) and (x[j - 2] == y[i - 1]):
                 row1[j] = min(
                     row1[j],
                     row3[j - 2] + 1
                 )
-            if i > 1 and j > 2 and (x[j - 3] == y[i - 1]):
+            if i > 1 and j > 2 and (x[j - 3] == y[i - 1]) and  (x[j - 1] == y[i - 2]):
                 row1[j]= min(
                     row1[j],
-                    row3[j-2]+1
+                    row3[j - 3] + 2
                 )
-            if i > 2 and j > 1 and (x[j - 1] == y[i - 3]):
+            if i > 2 and j > 1 and (x[j - 1] == y[i - 3]) and (x[j - 2] == y[i - 1]):
                 row1[j]= min(
                     row1[j],
-                    row3[j-2]+1
+                    row4[j - 2] + 2
                 )
 
         # Parada por threshold
@@ -434,7 +430,6 @@ def damerau_intermediate(x, y, threshold=None):
             return threshold + 1
 
     return min(row1[-1], threshold + 1)
-
 
 """"
 opcionesSpellBase = {
@@ -460,8 +455,9 @@ opcionesSpell = {
     'levenshtein_m': levenshtein_matriz,
     'levenshtein_r': levenshtein_reduccion,
     'levenshtein':   levenshtein,
-    'damerau_r':     damerau_restricted,
+    #'levenshtein_o': levenshtein_cota_optimista,
     'damerau_rm':    damerau_restricted_matriz,
+    'damerau_r':     damerau_restricted,
     'damerau_im':    damerau_intermediate_matriz,
     'damerau_i':     damerau_intermediate
 }
@@ -470,6 +466,5 @@ opcionesEdicion = {
     'levenshtein': levenshtein_edicion,
     'damerau_r':   damerau_restricted_edicion,
     'damerau_i':   damerau_intermediate_edicion
-
 }
 #
