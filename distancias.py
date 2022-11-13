@@ -13,7 +13,6 @@ import numpy as np
 # [ALEXEY]
 # Debajo utilizo esta misma versión que nos dan pero adaptada a mi gusto con el recorrido.
 # He hecho que cuadre con el grafo de las transparencias (o eso creo), intercambiando ejes.
-# Elegid solo UNA versión para realizar los demás algoritmos y me lo comentáis para que cambie la edición más adelante.
 
 # Versión base.
 def levenshtein_matriz(x, y, threshold=None):
@@ -175,7 +174,7 @@ def damerau_restricted_matriz(x, y, threshold=None):
                 D[i][j - 1] + 1,
                 D[i - 1][j - 1] + (x[i - 1] != y[j - 1]),
             )
-            #Regla para intercambio ab -> ba
+            #Regla para intercambio ab -> ba con coste 1
             if i > 1 and j > 1 and ((x[i - 2] == y[j - 1]) and (x[i - 1] == y[j - 2])):
                 op1 = min(op1, D[i - 2][j - 2] + 1)
             D[i][j] = op1
@@ -184,7 +183,7 @@ def damerau_restricted_matriz(x, y, threshold=None):
 
 
 def damerau_restricted_edicion(x, y, threshold=None):
-    # REVISAR - Como introducir dos letras en el append ( la comprobacion del damerau está pero no se como ponerlo en python)
+    # 
     lenX, lenY = len(x), len(y)
     D = np.zeros((lenY + 1, lenX + 1), dtype=np.int)
 
@@ -210,26 +209,30 @@ def damerau_restricted_edicion(x, y, threshold=None):
     j = lenX
 
     while i>0 and j>0:
+        # Si viene por la izquierda:
         if D[i-1][j] + 1 == D[i][j]:
             B.append(('', y[i - 1]))
             i = i - 1
 
+        # Si viene por debajo
         elif D[i][j-1] + 1 == D[i][j]:
             B.append((x[j - 1], ''))
             j = j - 1
-        #si está en la diagonal, es ese numero mas uno y las letras están intercambiadas
+        
+	# si está en la diagonal, y las letras son iguales
         elif (D[i-1][j-1] + (x[j - 1] != y[i - 1]) == D[i][j]):
             B.append((x[j - 1], y[i - 1]))
             i = i - 1
             j = j - 1
 
-        #and (x[j-1] == y[i - 2]) and (x[j - 2] == y[i-1]):
+        # Si no ocurre nada de lo anterior, aplica Damerau-Restricted
         else:
             #cogería las dos letras
             B.append((x[j-2] + x[j-1], y[i-2] + y[i-1]))
             i = i - 2
             j = j - 2
 
+    # Limites de contorno de la matriz
     while j>0:
         B.append((x[j - 1], ''))
         j = j - 1
@@ -247,7 +250,7 @@ def damerau_restricted_edicion(x, y, threshold=None):
 
 def damerau_restricted(x, y, threshold=None):
     #Versión del damerau-restricted con vectores en vez de la matriz
-    #Ahorro coste espacial
+    #Ahorro coste espacial. Uso de tres vetores para poder aplicar la regla del Damerau-Restricted
     lenX, lenY = len(x) + 1, len(y) + 1
     row1 = list(range(lenX))
     row2 = [None] * lenX
@@ -274,12 +277,10 @@ def damerau_restricted(x, y, threshold=None):
 
     return min(row1[-1], threshold + 1)
 
-    #return row1[-1]
-
-
 
 def damerau_intermediate_matriz(x, y, threshold=None):
     # Versión Damerau-Levenstein intermedia con matriz
+    # Se utiliza mismo procedimiento anterior, y se le añaden las dos reglas que conforman Damerau-Intermediate
     lenX, lenY = len(x), len(y)
     D = np.zeros((lenX + 1, lenY + 1), dtype=np.int)
     for i in range(1, lenX + 1):
@@ -294,8 +295,11 @@ def damerau_intermediate_matriz(x, y, threshold=None):
             )
             if i > 1 and j > 1 and ((x[i - 2] == y[j - 1]) and (x[i - 1] == y[j - 2])):
                 op1 = min(op1, D[i - 2][j - 2] + 1)
+
+            # Intercambio acb -> ba con coste 2
             if i > 2 and j > 1 and (x[i - 3] == y[j - 1]) and  x[i - 1] == y[j - 2]:
                 op1 = min(op1, D[i - 3][j - 2] + 2)
+            # Intercambio ab -> bca con coste 2
             if i > 1 and j > 2 and (x[i - 1] == y[j - 3]) and x[i - 2] == y[j - 1]:
                 op1 = min(op1, D[i - 2][j - 3] + 2)
 
@@ -335,48 +339,42 @@ def damerau_intermediate_edicion(x, y, threshold=None):
     j = lenX
 
     while i>0 and j>0:
+
+        # Si viene por la izquierda:
         if D[i-1][j] + 1 == D[i][j]:
             B.append(('', y[i - 1]))
             i = i - 1
 
+        # Si viene por debajo
         elif D[i][j-1] + 1 == D[i][j]:
             B.append((x[j - 1], ''))
             j = j - 1
-        #si está en la diagonal, es ese numero mas uno y las letras están intercambiadas
+
+        # Si está en la diagonal, y las letras son iguales
         elif (D[i-1][j-1] + (x[j - 1] != y[i - 1]) == D[i][j]):
             B.append((x[j - 1], y[i - 1]))
             i = i - 1
             j = j - 1
 
+        # Si se cumple Damerau-intermediate (regla acb->ba)
+        elif i > 2 and j > 1 and (x[j - 3] == y[i - 1]) and  x[j - 1] == y[i - 2]:
+            B.append((x[j-3] + x[j-2] + x[j-1], y[i-2] + y[i-1]))
+            j = j - 3
+            i = i - 2
 
+        # Si se cumple Damerau-intermediate (regla ab->bca)
+        elif i > 1 and j > 2 and (x[j - 1] == y[i - 3]) and x[j - 2] == y[i - 1]:
+            B.append((x[j-2] + x[j-1], y[i-3] + y[i-2] + y[i-1]))
+            j = j - 2
+            i = i - 3            
 
-        #and (x[j-1] == y[i - 2]) and (x[j - 2] == y[i-1]):
         else:
             #cogería las dos letras
             B.append((x[j-2] + x[j-1], y[i-2] + y[i-1]))
             i = i - 2
             j = j - 2
 
-
-        """
-        elif
-            B.append(x[j-2] + x[j-1], y[i-3] + y[i-2] + y[i-1])
-            j-=3
-            i-=2
-        elif
-            B.append(x[j-3] + x[j-2] + x[j-1], y[i-2] + y[i-1])
-            j-=2
-            i-=3
-        """
-
-
-
-
-
-
-
-
-
+    # Límites de contorno de la matriz
     while j>0:
         B.append((x[j - 1], ''))
         j = j - 1
@@ -393,7 +391,8 @@ def damerau_intermediate_edicion(x, y, threshold=None):
 
 
 def damerau_intermediate(x, y, threshold=None):
-    #Versión damerau intermedia con vectores
+    # Versión damerau intermedia con vectores
+    # Se encesitan 4 vectores para aplicar la última regla del DI: (ab -> bca)
     lenX, lenY = len(x) + 1, len(y) + 1
     row1 = list(range(lenX))
     row2 = [None] * lenX
@@ -431,26 +430,7 @@ def damerau_intermediate(x, y, threshold=None):
 
     return min(row1[-1], threshold + 1)
 
-""""
-opcionesSpellBase = {
-    'levenshtein_m': levenshtein_matriz,
-    'levenshtein_r': levenshtein_reduccion,
-    'levenshtein':   levenshtein,
-    'levenshtein_o': levenshtein_cota_optimista,
-    'damerau_rm':    damerau_restricted_matriz,
-    'damerau_r':     damerau_restricted,
-    'damerau_im':    damerau_intermediate_matriz,
-    'damerau_i':     damerau_intermediate
-}
 
-opcionesEdicionBase = {
-    'levenshtein': levenshtein_edicion,
-    'damerau_r':   damerau_restricted_edicion,
-    'damerau_i':   damerau_intermediate_edicion
-}
-"""
-
-# Para no pillar TODOS los tests de momento, id modificando esto mejor.
 opcionesSpell = {
     'levenshtein_m': levenshtein_matriz,
     'levenshtein_r': levenshtein_reduccion,
