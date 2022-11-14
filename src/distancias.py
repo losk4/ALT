@@ -116,7 +116,7 @@ def levenshtein_edicion(x, y, threshold=None):
     B.reverse()
     return D[lenY, lenX], B
 
-# [ALEXEY]
+# []
 def levenshtein_reduccion(x, y, threshold=None):
     # Nos basta con utilizar dos vectores en vez de toda la matriz.
     lenX, lenY = len(x) + 1, len(y) + 1
@@ -135,7 +135,7 @@ def levenshtein_reduccion(x, y, threshold=None):
 
     return row1[-1]
 
-# [ALEXEY]
+# []
 def levenshtein(x, y, threshold):
     lenX, lenY = len(x) + 1, len(y) + 1
     row1 = list(range(lenX))
@@ -157,8 +157,48 @@ def levenshtein(x, y, threshold):
 
     return min(row1[-1], threshold + 1)
 
+# [JOSE]
 def levenshtein_cota_optimista(x, y, threshold):
-    return 0 # COMPLETAR Y REEMPLAZAR ESTA PARTE
+    dx = {}
+    dy = {}
+        
+    for letra in x:
+        if letra not in dx:
+            dx[letra] = 1
+    else:
+        dx[letra] += 1
+            
+    for letra in y:
+        if letra not in dy:
+            dy[letra] = 1
+    else:
+        dy[letra] += 1
+        
+    for key,value in dx.items():
+        if key in dy:
+            dy[key] += dx[key]
+        else:
+            dy[key] = 1
+        
+    res = {
+        'pos':0,
+        'neg':0
+     }
+        
+    for letra in dy:
+        dif = x.count(letra) - y.count(letra)
+            
+        if dif > 0 :
+            res['pos'] += dif
+        else:
+            res['neg'] += abs(dif)
+        
+    aux = max(res['pos'], res['neg'])
+
+    if aux > threshold:
+        return threshold + 1
+    else:
+        return levenshtein(x, y, threshold)
 
 def damerau_restricted_matriz(x, y, threshold=None):
     # Versión Damerau-Levenstein restringida con matriz
@@ -435,7 +475,7 @@ opcionesSpell = {
     'levenshtein_m': levenshtein_matriz,
     'levenshtein_r': levenshtein_reduccion,
     'levenshtein':   levenshtein,
-    #'levenshtein_o': levenshtein_cota_optimista,
+    'levenshtein_o': levenshtein_cota_optimista,
     'damerau_rm':    damerau_restricted_matriz,
     'damerau_r':     damerau_restricted,
     'damerau_im':    damerau_intermediate_matriz,
@@ -444,7 +484,6 @@ opcionesSpell = {
 
 opcionesEdicion = {
     'levenshtein': levenshtein_edicion,
-    'damerau_r':   damerau_restricted_edicion,
-    'damerau_i':   damerau_intermediate_edicion
+    'damerau_r':   damerau_restricted_edicion
+    #'damerau_i':   damerau_intermediate_edicion
 }
-#

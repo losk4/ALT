@@ -1,16 +1,30 @@
+--- 1.1877927780151367 seconds ---
 alexanderx	2
+--- 1.1000843048095703 seconds ---
 iluminaciónx	8
+--- 1.2037527561187744 seconds ---
 capitla	144
+--- 1.187849521636963 seconds ---
 secuelax	32
+--- 1.141946792602539 seconds ---
 asoman2	9
+--- 1.12595796585083 seconds ---
 virneg	146
+--- 1.2027819156646729 seconds ---
 perwisos	36
+--- 1.2107610702514648 seconds ---
 persimos	43
+--- 1.148953914642334 seconds ---
 limertad	58
+--- 1.1459338665008545 seconds ---
 sagardo	50
+--- 1.184812068939209 seconds ---
 aperturaq	26
+--- 1.135951280593872 seconds ---
 loursed	3
+--- 1.2127559185028076 seconds ---
 cuaqro	523
+--- 1.1309733390808105 seconds ---
 planrta	120
 NOT antihéroes AND ecuador	11
 blindarse OR árboles AND perjuicio	0
@@ -23,13 +37,31 @@ capital OR secuela AND asoman	0
 virgen AND permisos	1
 libertad AND NOT sagrado	57
 apertura OR lourdes	27
+--- 1.238685131072998 seconds ---
+--- 1.222728967666626 seconds ---
 NOT antihreoes AND ecuadorr	11
+--- 1.195775032043457 seconds ---
+--- 1.0940709114074707 seconds ---
+--- 1.195801019668579 seconds ---
 blindase OR árbolse AND perjuicioso	1
+--- 1.435457706451416 seconds ---
+--- 1.133939266204834 seconds ---
 diógenes AND avrasión	0
+--- 1.1399798393249512 seconds ---
+--- 1.0845131874084473 seconds ---
 actulamente AND NOT rubricar	74
+--- 1.159869909286499 seconds ---
+--- 1.1788742542266846 seconds ---
 ventanasseu OR rebuscardo	2
+--- 1.137333869934082 seconds ---
+--- 1.154907464981079 seconds ---
 tortugosa OR atrasdecer	16
+--- 1.128950595855713 seconds ---
+--- 1.0631828308105469 seconds ---
 NOT alexanders AND iluminaciónx	8
+--- 1.1741585731506348 seconds ---
 capitla OR escuela	156
+--- 1.1269848346710205 seconds ---
+--- 1.1967699527740479 seconds ---
 wirgen AND perwisos	11
 libertad AND NOT sangrado	58
