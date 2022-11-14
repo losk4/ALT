@@ -27,6 +27,13 @@ if __name__ == "__main__":
     parser.add_argument('-O', '--positional', dest='positional', action='store_true', default=False, 
                     help='compute positional index.')
 
+    parser.add_argument('-d', '--distance', dest='distance', action='store', default=None,
+                    help='default distance function for the spelling correction.')
+
+    parser.add_argument('-t', '--threshold', dest='threshold', action='store', type=int, default=None, 
+                    help='default threshold for the spelling correction.')
+
+
     args = parser.parse_args()
 
     newsdir = args.newsdir

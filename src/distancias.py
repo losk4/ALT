@@ -33,7 +33,7 @@ def levenshtein_matriz(x, y, threshold=None):
     return D[lenX, lenY]
 
 # [ALEXEY]
-# Versión modificada. SIN OPTIMIZAR, la he hecho del tirón.
+# Versión modificada.
 # Recuperación de operaciones de edición.
 def levenshtein_edicion(x, y, threshold=None):
     lenX, lenY = len(x), len(y)
